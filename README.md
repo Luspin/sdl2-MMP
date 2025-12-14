@@ -526,10 +526,3 @@ chmod +x /mnt/SDCARD/App/SDL/mi_ao_launch.sh
 ```sh
 ./mi_ao_launch.sh music &
 ```
-
----
-```
-# kill -STOP `pidof MainUI`
-# LD_LIBRARY_PATH=.:/config/lib:/customer/lib ./xxx
-# kill -CONT `pidof MainUI`
-```
