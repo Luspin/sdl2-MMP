@@ -376,7 +376,7 @@ EGLBoolean EGLAPIENTRY QueryContext(EGLDisplay dpy, EGLContext ctx, EGLint attri
 EGLBoolean EGLAPIENTRY WaitGL(void);
 EGLBoolean EGLAPIENTRY WaitNative(EGLint engine);
 EGLBoolean EGLAPIENTRY SwapBuffers(EGLDisplay dpy, EGLSurface surface);
-EGLBoolean EGLAPIENTRY UpdateBufferSettings(EGLDisplay dpy, EGLSurface surface, void *p0, void *p1, void *p2);
+EGLBoolean EGLAPIENTRY UpdateBufferSettings(EGLDisplay dpy, EGLSurface surface, void *p0, void *p1, void *p2, int p3);
 EGLBoolean EGLAPIENTRY CopyBuffers(EGLDisplay dpy, EGLSurface surface, EGLNativePixmapType target);
 EGLImageKHR EGLAPIENTRY CreateImageKHR(EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list);
 EGLImageKHR EGLAPIENTRY CreateImage(EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLAttrib *attrib_list);
@@ -558,9 +558,9 @@ EGLAPI EGLBoolean EGLAPIENTRY eglSwapBuffers(EGLDisplay dpy, EGLSurface surface)
 	return egl::SwapBuffers(dpy, surface);
 }
 
-EGLAPI EGLBoolean EGLAPIENTRY eglUpdateBufferSettings(EGLDisplay dpy, EGLSurface surface, void *p0, void *p1, void *p2)
+EGLAPI EGLBoolean EGLAPIENTRY eglUpdateBufferSettings(EGLDisplay dpy, EGLSurface surface, void *p0, void *p1, void *p2, int p3)
 {
-    return egl::UpdateBufferSettings(dpy, surface, p0, p1, p2);
+    return egl::UpdateBufferSettings(dpy, surface, p0, p1, p2, p3);
 }
 
 EGLAPI EGLBoolean EGLAPIENTRY eglCopyBuffers(EGLDisplay dpy, EGLSurface surface, EGLNativePixmapType target)

@@ -24,7 +24,7 @@ namespace sw
 		FrameBufferMini(int width, int height);
 		~FrameBufferMini() override;
 
-        void updateBufferSettings(void *p0, void *p1, void *p2);
+        void updateBufferSettings(void *p0, void *p1, void *p2, int p3);
 		void flip(sw::Surface *source) override { blit(source, nullptr, nullptr); }
 		void blit(sw::Surface *source, const Rect *sourceRect, const Rect *destRect) override;
 
@@ -32,6 +32,7 @@ namespace sw
 		void unlock() override;
 
     private:
+        int pitch;
         pFunc fb_cb;
         void *fb_buf;
 	};

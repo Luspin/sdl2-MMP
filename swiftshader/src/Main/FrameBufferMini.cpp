@@ -15,6 +15,7 @@ namespace sw {
 	{
         fb_cb = NULL;
         fb_buf = NULL;
+        pitch = 640 * 4;
 	}
 
 	FrameBufferMini::~FrameBufferMini()
@@ -24,7 +25,7 @@ namespace sw {
 	void *FrameBufferMini::lock()
 	{
         if (fb_cb && fb_buf) {
-            stride = 640 * 4;
+            stride = pitch;
             return framebuffer = fb_buf;
         }
         return NULL;
@@ -43,13 +44,15 @@ namespace sw {
         }
 	}
 
-    void FrameBufferMini::updateBufferSettings(void *p0, void *p1, void *p2)
+    void FrameBufferMini::updateBufferSettings(void *p0, void *p1, void *p2, int p3)
     {
+        pitch = p3;
         fb_cb = (pFunc)p0;
+
         if (fb_cb) {
             fb_buf = fb_cb();
         }
-        debug("%s, cb=%p, buf=%p\n", __func__, fb_cb, fb_buf);
+        debug("%s, cb=%p, buf=%p, pitch=%d\n", __func__, fb_cb, fb_buf, pitch);
     }
 }
 

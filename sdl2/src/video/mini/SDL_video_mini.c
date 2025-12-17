@@ -78,7 +78,7 @@ int Mini_InitGFX(void)
 int Mini_QuitGFX(void)
 {
     debug("%s\n", __func__);
-    MI_SYS_Munmap(gfx.fb.virAddr, TMP_SIZE);
+    MI_SYS_Munmap(gfx.fb.virAddr, FB_SIZE);
     MI_SYS_Munmap(gfx.tmp.virAddr, TMP_SIZE);
     MI_SYS_MMA_Free(gfx.tmp.phyAddr);
     MI_SYS_Munmap(gfx.overlay.virAddr, TMP_SIZE);
@@ -114,13 +114,13 @@ void GFX_Clear(void)
     MI_SYS_MemsetPa(gfx.tmp.phyAddr, 0, TMP_SIZE);
 }
 
-int GFX_Copy(const void *pixels, SDL_Rect src_rt, SDL_Rect dst_rt, int pitch, int alpha, int rotate)
+int GFX_Copy(const void *pixels, SDL_Rect srt, SDL_Rect drt, int pitch, int alpha, int rotate)
 {
     MI_U16 u16Fence = 0;
-    int is_rgb565 = (pitch / src_rt.w) == 2 ? 1 : 0;
+    int rgb565 = (pitch / srt.w) == 2 ? 1 : 0;
 
-    debug("%s, pixels=%p, is_rgb565=%d\n", __func__, pixels, is_rgb565);
-    memcpy(gfx.tmp.virAddr, pixels, src_rt.h * pitch);
+    debug("%s, pixels=%p, rgb565=%d\n", __func__, pixels, rgb565);
+    memcpy(gfx.tmp.virAddr, pixels, srt.h * pitch);
 
     gfx.hw.opt.u32GlobalSrcConstColor = 0;
     gfx.hw.opt.eRotate = rotate;
@@ -128,27 +128,27 @@ int GFX_Copy(const void *pixels, SDL_Rect src_rt, SDL_Rect dst_rt, int pitch, in
     gfx.hw.opt.eDstDfbBldOp = 0;
     gfx.hw.opt.eDFBBlendFlag = 0;
 
-    gfx.hw.src.rt.s32Xpos = src_rt.x;
-    gfx.hw.src.rt.s32Ypos = src_rt.y;
-    gfx.hw.src.rt.u32Width = src_rt.w;
-    gfx.hw.src.rt.u32Height = src_rt.h;
-    gfx.hw.src.surf.u32Width = src_rt.w;
-    gfx.hw.src.surf.u32Height = src_rt.h;
+    gfx.hw.src.rt.s32Xpos = srt.x;
+    gfx.hw.src.rt.s32Ypos = srt.y;
+    gfx.hw.src.rt.u32Width = srt.w;
+    gfx.hw.src.rt.u32Height = srt.h;
+    gfx.hw.src.surf.u32Width = srt.w;
+    gfx.hw.src.surf.u32Height = srt.h;
     gfx.hw.src.surf.u32Stride = pitch;
-    gfx.hw.src.surf.eColorFmt = is_rgb565 ? E_MI_GFX_FMT_RGB565 : E_MI_GFX_FMT_ARGB8888;
+    gfx.hw.src.surf.eColorFmt = rgb565 ? E_MI_GFX_FMT_RGB565 : E_MI_GFX_FMT_ARGB8888;
     gfx.hw.src.surf.phyAddr = gfx.tmp.phyAddr;
 
-    gfx.hw.dst.rt.s32Xpos = dst_rt.x;
-    gfx.hw.dst.rt.s32Ypos = dst_rt.y;
-    gfx.hw.dst.rt.u32Width = dst_rt.w;
-    gfx.hw.dst.rt.u32Height = dst_rt.h;
+    gfx.hw.dst.rt.s32Xpos = drt.x;
+    gfx.hw.dst.rt.s32Ypos = drt.y;
+    gfx.hw.dst.rt.u32Width = drt.w;
+    gfx.hw.dst.rt.u32Height = drt.h;
     gfx.hw.dst.surf.u32Width = FB_W;
     gfx.hw.dst.surf.u32Height = FB_H;
     gfx.hw.dst.surf.u32Stride = FB_W * FB_BPP;
     gfx.hw.dst.surf.eColorFmt = E_MI_GFX_FMT_ARGB8888;
     gfx.hw.dst.surf.phyAddr = gfx.fb.phyAddr + (FB_W * gfx.vinfo.yoffset * FB_BPP);
 
-    MI_SYS_FlushInvCache(gfx.tmp.virAddr, pitch * src_rt.h);
+    MI_SYS_FlushInvCache(gfx.tmp.virAddr, pitch * srt.h);
     MI_GFX_BitBlit(&gfx.hw.src.surf, &gfx.hw.src.rt, &gfx.hw.dst.surf, &gfx.hw.dst.rt, &gfx.hw.opt, &u16Fence);
     MI_GFX_WaitAllDone(TRUE, u16Fence);
     return 0;
@@ -163,11 +163,11 @@ void GFX_Flip(void)
 
 void* GFX_CB(void)
 {
-    SDL_Rect srt = {0, 0, FB_W, FB_H};
-    SDL_Rect drt = {0, 0, FB_W, FB_H};
+    SDL_Rect srt = { 0, 0, vid_win->w, vid_win->h };
+    SDL_Rect drt = { 0, 0, FB_W, FB_H };
 
-    debug("%s\n", __func__);
-    GFX_Copy(gfx.tmp.virAddr, srt, drt, FB_W * FB_BPP, 0, E_MI_GFX_ROTATE_180);
+    debug("%s src(%d,%d,%d,%d) dst(%d,%d,%d,%d)\n", __func__, srt.x, srt.y, srt.w, srt.h, drt.x, drt.y, drt.w, drt.h);
+    GFX_Copy(gfx.tmp.virAddr, srt, drt, srt.w * FB_BPP, 0, E_MI_GFX_ROTATE_180);
     GFX_Flip();
     return gfx.tmp.virAddr;
 }

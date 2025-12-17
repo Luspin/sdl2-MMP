@@ -8,13 +8,15 @@
 #include "SDL_video_mini.h"
 #include "SDL_gles_mini.h"
 
+extern SDL_Window *vid_win;
+
 static EGLDisplay display = 0;
 static EGLContext context = 0;
 static EGLSurface surface = 0;
 static EGLConfig config = 0;
 static void *fb_cb = NULL;
 
-EGLBoolean eglUpdateBufferSettings(EGLDisplay display, EGLSurface surface, void *cb, void *p0, void *p1);
+EGLBoolean eglUpdateBufferSettings(EGLDisplay display, EGLSurface surface, void *, void *, void *, int);
 
 int glLoadLibrary(_THIS, const char *name)
 {
@@ -119,7 +121,8 @@ SDL_GLContext glCreateContext(_THIS, SDL_Window *window)
 
     debug("%s, callback=%p\n", __func__, fb_cb);
     eglMakeCurrent(display, surface, surface, context);
-    eglUpdateBufferSettings(display, surface, fb_cb, NULL, NULL);
+    eglUpdateBufferSettings(display, surface, fb_cb, NULL, NULL, vid_win->w * 4);
+
     debug("%s, initialized EGL successfully\n", __func__);
     return context;
 }

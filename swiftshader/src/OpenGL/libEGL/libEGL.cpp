@@ -1155,11 +1155,11 @@ EGLBoolean EGLAPIENTRY SwapBuffers(EGLDisplay dpy, EGLSurface surface)
 	return success(EGL_TRUE);
 }
 
-EGLBoolean EGLAPIENTRY UpdateBufferSettings(EGLDisplay dpy, EGLSurface surface, void *p0, void *p1, void *p2)
+EGLBoolean EGLAPIENTRY UpdateBufferSettings(EGLDisplay dpy, EGLSurface surface, void *p0, void *p1, void *p2, int p3)
 {
     egl::Surface *eglSurface = (egl::Surface*)surface;
 
-    return eglSurface->updateBufferSettings(p0, p1, p2) ? EGL_TRUE : EGL_FALSE;
+    return eglSurface->updateBufferSettings(p0, p1, p2, p3) ? EGL_TRUE : EGL_FALSE;
 }
 
 EGLBoolean EGLAPIENTRY CopyBuffers(EGLDisplay dpy, EGLSurface surface, EGLNativePixmapType target)
