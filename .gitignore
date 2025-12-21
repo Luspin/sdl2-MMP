@@ -7,3 +7,13 @@ sdl2/sdl2-config.cmake
 sdl2/sdl2.pc
 sdl2/test/configure
 packages
+sdl2/Makefile
+sdl2/Makefile.rules
+sdl2/build/
+sdl2/config.status
+sdl2/configure~
+sdl2/libEGL.so
+sdl2/libGLESv2.so
+sdl2/libtool
+sdl2/sdl2-config
+sdl2/test/configure~

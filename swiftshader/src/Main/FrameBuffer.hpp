@@ -46,7 +46,7 @@ namespace sw
 
 		virtual void flip(sw::Surface *source) = 0;
 		virtual void blit(sw::Surface *source, const Rect *sourceRect, const Rect *destRect) = 0;
-        virtual void updateBufferSettings(void *p0, void *p1, void *p2) = 0;
+        virtual void updateBufferSettings(void *p0, void *p1, void *p2, int p3) = 0;
 
 		virtual void *lock() = 0;
 		virtual void unlock() = 0;

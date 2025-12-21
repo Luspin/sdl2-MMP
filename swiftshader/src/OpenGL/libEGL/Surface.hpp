@@ -36,7 +36,7 @@ class Surface : public gl::Surface, public gl::Object
 public:
 	virtual bool initialize();
 	virtual void swap() = 0;
-    virtual bool updateBufferSettings(void *p0, void *p1, void *p2) = 0;
+    virtual bool updateBufferSettings(void *p0, void *p1, void *p2, int p3) = 0;
 
 	egl::Image *getRenderTarget() override;
 	egl::Image *getDepthStencil() override;
@@ -122,7 +122,7 @@ public:
 
 	bool isWindowSurface() const override { return true; }
 	void swap() override;
-    bool updateBufferSettings(void *p0, void *p1, void *p2) override;
+    bool updateBufferSettings(void *p0, void *p1, void *p2, int p3) override;
 
 	EGLNativeWindowType getWindowHandle() const override;
 
@@ -146,7 +146,7 @@ public:
 
 	bool isPBufferSurface() const override { return true; }
 	void swap() override;
-    bool updateBufferSettings(void *p0, void *p1, void *p2) override;
+    bool updateBufferSettings(void *p0, void *p1, void *p2, int p3) override;
 
 	EGLNativeWindowType getWindowHandle() const override;
 

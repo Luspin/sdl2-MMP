@@ -32,6 +32,8 @@
 #include <tchar.h>
 #elif defined(__APPLE__)
 #include "OSXUtils.hpp"
+#elif defined(__linux__)
+#include <string.h>
 #endif
 #if defined(__ANDROID__) && defined(ANDROID_NDK_BUILD)
 #include <android/native_window.h>
@@ -58,277 +60,277 @@ Surface::Surface(const Display *display, const Config *config) : display(display
 
 Surface::~Surface()
 {
-	Surface::deleteResources();
+    Surface::deleteResources();
 }
 
 bool Surface::initialize()
 {
-	ASSERT(!backBuffer && !depthStencil);
+    ASSERT(!backBuffer && !depthStencil);
 
-	if(libGLESv2)
-	{
-		if(clientBuffer)
-		{
-			backBuffer = libGLESv2->createBackBufferFromClientBuffer(
-				egl::ClientBuffer(width, height, getClientBufferFormat(), clientBuffer, clientBufferPlane));
-		}
-		else
-		{
-			backBuffer = libGLESv2->createBackBuffer(width, height, config->mRenderTargetFormat, config->mSamples);
-		}
-	}
-	else if(libGLES_CM)
-	{
-		backBuffer = libGLES_CM->createBackBuffer(width, height, config->mRenderTargetFormat, config->mSamples);
-	}
+    if(libGLESv2)
+    {
+        if(clientBuffer)
+        {
+            backBuffer = libGLESv2->createBackBufferFromClientBuffer(
+                egl::ClientBuffer(width, height, getClientBufferFormat(), clientBuffer, clientBufferPlane));
+        }
+        else
+        {
+            backBuffer = libGLESv2->createBackBuffer(width, height, config->mRenderTargetFormat, config->mSamples);
+        }
+    }
+    else if(libGLES_CM)
+    {
+        backBuffer = libGLES_CM->createBackBuffer(width, height, config->mRenderTargetFormat, config->mSamples);
+    }
 
-	if(!backBuffer)
-	{
-		ERR("Could not create back buffer");
-		deleteResources();
-		return error(EGL_BAD_ALLOC, false);
-	}
+    if(!backBuffer)
+    {
+        ERR("Could not create back buffer");
+        deleteResources();
+        return error(EGL_BAD_ALLOC, false);
+    }
 
-	if(config->mDepthStencilFormat != sw::FORMAT_NULL)
-	{
-		if(libGLESv2)
-		{
-			depthStencil = libGLESv2->createDepthStencil(width, height, config->mDepthStencilFormat, config->mSamples);
-		}
-		else if(libGLES_CM)
-		{
-			depthStencil = libGLES_CM->createDepthStencil(width, height, config->mDepthStencilFormat, config->mSamples);
-		}
+    if(config->mDepthStencilFormat != sw::FORMAT_NULL)
+    {
+        if(libGLESv2)
+        {
+            depthStencil = libGLESv2->createDepthStencil(width, height, config->mDepthStencilFormat, config->mSamples);
+        }
+        else if(libGLES_CM)
+        {
+            depthStencil = libGLES_CM->createDepthStencil(width, height, config->mDepthStencilFormat, config->mSamples);
+        }
 
-		if(!depthStencil)
-		{
-			ERR("Could not create depth/stencil buffer for surface");
-			deleteResources();
-			return error(EGL_BAD_ALLOC, false);
-		}
-	}
+        if(!depthStencil)
+        {
+            ERR("Could not create depth/stencil buffer for surface");
+            deleteResources();
+            return error(EGL_BAD_ALLOC, false);
+        }
+    }
 
-	return true;
+    return true;
 }
 
 void Surface::deleteResources()
 {
-	if(depthStencil)
-	{
-		depthStencil->release();
-		depthStencil = nullptr;
-	}
+    if(depthStencil)
+    {
+        depthStencil->release();
+        depthStencil = nullptr;
+    }
 
-	if(texture)
-	{
-		texture->releaseTexImage();
-		texture = nullptr;
-	}
+    if(texture)
+    {
+        texture->releaseTexImage();
+        texture = nullptr;
+    }
 
-	if(backBuffer)
-	{
-		backBuffer->release();
-		backBuffer = nullptr;
-	}
+    if(backBuffer)
+    {
+        backBuffer->release();
+        backBuffer = nullptr;
+    }
 }
 
 egl::Image *Surface::getRenderTarget()
 {
-	if(backBuffer)
-	{
-		backBuffer->addRef();
-	}
+    if(backBuffer)
+    {
+        backBuffer->addRef();
+    }
 
-	return backBuffer;
+    return backBuffer;
 }
 
 egl::Image *Surface::getDepthStencil()
 {
-	if(depthStencil)
-	{
-		depthStencil->addRef();
-	}
+    if(depthStencil)
+    {
+        depthStencil->addRef();
+    }
 
-	return depthStencil;
+    return depthStencil;
 }
 
 void Surface::setMipmapLevel(EGLint mipmapLevel)
 {
-	this->mipmapLevel = mipmapLevel;
+    this->mipmapLevel = mipmapLevel;
 }
 
 void Surface::setMultisampleResolve(EGLenum multisampleResolve)
 {
-	this->multisampleResolve = multisampleResolve;
+    this->multisampleResolve = multisampleResolve;
 }
 
 void Surface::setSwapBehavior(EGLenum swapBehavior)
 {
-	this->swapBehavior = swapBehavior;
+    this->swapBehavior = swapBehavior;
 }
 
 void Surface::setSwapInterval(EGLint interval)
 {
-	if(swapInterval == interval)
-	{
-		return;
-	}
+    if(swapInterval == interval)
+    {
+        return;
+    }
 
-	swapInterval = interval;
-	swapInterval = std::max(swapInterval, display->getMinSwapInterval());
-	swapInterval = std::min(swapInterval, display->getMaxSwapInterval());
+    swapInterval = interval;
+    swapInterval = std::max(swapInterval, display->getMinSwapInterval());
+    swapInterval = std::min(swapInterval, display->getMaxSwapInterval());
 }
 
 EGLint Surface::getConfigID() const
 {
-	return config->mConfigID;
+    return config->mConfigID;
 }
 
 EGLenum Surface::getSurfaceType() const
 {
-	return config->mSurfaceType;
+    return config->mSurfaceType;
 }
 
 EGLint Surface::getWidth() const
 {
-	return width;
+    return width;
 }
 
 EGLint Surface::getHeight() const
 {
-	return height;
+    return height;
 }
 
 EGLint Surface::getMipmapLevel() const
 {
-	return mipmapLevel;
+    return mipmapLevel;
 }
 
 EGLenum Surface::getMultisampleResolve() const
 {
-	return multisampleResolve;
+    return multisampleResolve;
 }
 
 EGLint Surface::getPixelAspectRatio() const
 {
-	return pixelAspectRatio;
+    return pixelAspectRatio;
 }
 
 EGLenum Surface::getRenderBuffer() const
 {
-	return renderBuffer;
+    return renderBuffer;
 }
 
 EGLenum Surface::getSwapBehavior() const
 {
-	return swapBehavior;
+    return swapBehavior;
 }
 
 EGLenum Surface::getTextureFormat() const
 {
-	return textureFormat;
+    return textureFormat;
 }
 
 EGLenum Surface::getTextureTarget() const
 {
-	return textureTarget;
+    return textureTarget;
 }
 
 EGLBoolean Surface::getLargestPBuffer() const
 {
-	return largestPBuffer;
+    return largestPBuffer;
 }
 
 sw::Format Surface::getClientBufferFormat() const
 {
-	switch(clientBufferType)
-	{
-	case GL_UNSIGNED_BYTE:
-		switch(clientBufferFormat)
-		{
-		case GL_RED:
-			return sw::FORMAT_R8;
-		case GL_RG:
-			return sw::FORMAT_G8R8;
-		case GL_RGB:
-			return sw::FORMAT_X8R8G8B8;
-		case GL_BGRA_EXT:
-			return sw::FORMAT_A8R8G8B8;
-		default:
-			UNREACHABLE(clientBufferFormat);
-			break;
-		}
-		break;
-	case GL_UNSIGNED_SHORT:
-		switch(clientBufferFormat)
-		{
-		case GL_R16UI:
-			return sw::FORMAT_R16UI;
-		default:
-			UNREACHABLE(clientBufferFormat);
-			break;
-		}
-		break;
-	case GL_HALF_FLOAT_OES:
-	case GL_HALF_FLOAT:
-		switch(clientBufferFormat)
-		{
-		case GL_RGBA:
-			return sw::FORMAT_A16B16G16R16F;
-		default:
-			UNREACHABLE(clientBufferFormat);
-			break;
-		}
-	default:
-		UNREACHABLE(clientBufferType);
-		break;
-	}
+    switch(clientBufferType)
+    {
+    case GL_UNSIGNED_BYTE:
+        switch(clientBufferFormat)
+        {
+        case GL_RED:
+            return sw::FORMAT_R8;
+        case GL_RG:
+            return sw::FORMAT_G8R8;
+        case GL_RGB:
+            return sw::FORMAT_X8R8G8B8;
+        case GL_BGRA_EXT:
+            return sw::FORMAT_A8R8G8B8;
+        default:
+            UNREACHABLE(clientBufferFormat);
+            break;
+        }
+        break;
+    case GL_UNSIGNED_SHORT:
+        switch(clientBufferFormat)
+        {
+        case GL_R16UI:
+            return sw::FORMAT_R16UI;
+        default:
+            UNREACHABLE(clientBufferFormat);
+            break;
+        }
+        break;
+    case GL_HALF_FLOAT_OES:
+    case GL_HALF_FLOAT:
+        switch(clientBufferFormat)
+        {
+        case GL_RGBA:
+            return sw::FORMAT_A16B16G16R16F;
+        default:
+            UNREACHABLE(clientBufferFormat);
+            break;
+        }
+    default:
+        UNREACHABLE(clientBufferType);
+        break;
+    }
 
-	return sw::FORMAT_NULL;
+    return sw::FORMAT_NULL;
 }
 
 void Surface::setBoundTexture(egl::Texture *texture)
 {
-	this->texture = texture;
+    this->texture = texture;
 }
 
 egl::Texture *Surface::getBoundTexture() const
 {
-	return texture;
+    return texture;
 }
 
 WindowSurface::WindowSurface(Display *display, const Config *config, EGLNativeWindowType window)
-	: Surface(display, config), window(window)
+    : Surface(display, config), window(window)
 {
-	pixelAspectRatio = (EGLint)(1.0 * EGL_DISPLAY_SCALING);   // FIXME: Determine actual pixel aspect ratio
+    pixelAspectRatio = (EGLint)(1.0 * EGL_DISPLAY_SCALING);   // FIXME: Determine actual pixel aspect ratio
 }
 
 WindowSurface::~WindowSurface()
 {
-	WindowSurface::deleteResources();
+    WindowSurface::deleteResources();
 }
 
 bool WindowSurface::initialize()
 {
-	ASSERT(!frameBuffer && !backBuffer && !depthStencil);
+    ASSERT(!frameBuffer && !backBuffer && !depthStencil);
 
-	return checkForResize();
+    return checkForResize();
 }
 
 void WindowSurface::swap()
 {
-	if(backBuffer && frameBuffer)
-	{
-		frameBuffer->flip(backBuffer);
+    if(backBuffer && frameBuffer)
+    {
+        frameBuffer->flip(backBuffer);
 
-		checkForResize();
-	}
+        checkForResize();
+    }
 }
 
-bool WindowSurface::updateBufferSettings(void *p0, void *p1, void *p2)
+bool WindowSurface::updateBufferSettings(void *p0, void *p1, void *p2, int p3)
 {
-    if(frameBuffer){
-        frameBuffer->updateBufferSettings(p0, p1, p2);
+    if (frameBuffer) {
+        frameBuffer->updateBufferSettings(p0, p1, p2, p3);
         return true;
     }
     return false;
@@ -336,151 +338,148 @@ bool WindowSurface::updateBufferSettings(void *p0, void *p1, void *p2)
 
 EGLNativeWindowType WindowSurface::getWindowHandle() const
 {
-	return window;
+    return window;
 }
 
 bool WindowSurface::checkForResize()
 {
-	#if defined(_WIN32)
-		RECT client;
-		BOOL status = GetClientRect(window, &client);
+    #if defined(_WIN32)
+        RECT client;
+        BOOL status = GetClientRect(window, &client);
 
-		if(status == 0)
-		{
-			return error(EGL_BAD_NATIVE_WINDOW, false);
-		}
+        if(status == 0)
+        {
+            return error(EGL_BAD_NATIVE_WINDOW, false);
+        }
 
-		int windowWidth = client.right - client.left;
-		int windowHeight = client.bottom - client.top;
-	#elif defined(__ANDROID__)
-	#ifdef ANDROID_NDK_BUILD
-		int windowWidth = ANativeWindow_getWidth(window);
-		int windowHeight = ANativeWindow_getHeight(window);
-	#else
-		int windowWidth;  window->query(window, NATIVE_WINDOW_WIDTH, &windowWidth);
-		int windowHeight; window->query(window, NATIVE_WINDOW_HEIGHT, &windowHeight);
-	#endif
-	#elif defined(USE_X11)
-		XWindowAttributes windowAttributes;
-		Status status = libX11->XGetWindowAttributes((::Display*)display->getNativeDisplay(), window, &windowAttributes);
+        int windowWidth = client.right - client.left;
+        int windowHeight = client.bottom - client.top;
+    #elif defined(__ANDROID__)
+    #ifdef ANDROID_NDK_BUILD
+        int windowWidth = ANativeWindow_getWidth(window);
+        int windowHeight = ANativeWindow_getHeight(window);
+    #else
+        int windowWidth;  window->query(window, NATIVE_WINDOW_WIDTH, &windowWidth);
+        int windowHeight; window->query(window, NATIVE_WINDOW_HEIGHT, &windowHeight);
+    #endif
+    #elif defined(USE_X11)
+        XWindowAttributes windowAttributes;
+        Status status = libX11->XGetWindowAttributes((::Display*)display->getNativeDisplay(), window, &windowAttributes);
 
-		if(status == 0)
-		{
-			return error(EGL_BAD_NATIVE_WINDOW, false);
-		}
+        if(status == 0)
+        {
+            return error(EGL_BAD_NATIVE_WINDOW, false);
+        }
 
-		int windowWidth = windowAttributes.width;
-		int windowHeight = windowAttributes.height;
-	#elif defined(__linux__)
-		// Non X11 linux is headless only
-		int windowWidth = 640;
-		int windowHeight = 480;
-	#elif defined(__APPLE__)
-		int windowWidth;
-		int windowHeight;
-		sw::OSX::GetNativeWindowSize(window, windowWidth, windowHeight);
-	#elif defined(__Fuchsia__)
-		// TODO(crbug.com/800951): Integrate with Mozart.
-		int windowWidth = 100;
-		int windowHeight = 100;
-	#else
-		#error "WindowSurface::checkForResize unimplemented for this platform"
-	#endif
+        int windowWidth = windowAttributes.width;
+        int windowHeight = windowAttributes.height;
+    #elif defined(__linux__)
+        // Non X11 linux is headless only
+        int windowWidth = 320;
+        int windowHeight = 240;
+    #elif defined(__APPLE__)
+        int windowWidth;
+        int windowHeight;
+        sw::OSX::GetNativeWindowSize(window, windowWidth, windowHeight);
+    #elif defined(__Fuchsia__)
+        // TODO(crbug.com/800951): Integrate with Mozart.
+        int windowWidth = 100;
+        int windowHeight = 100;
+    #else
+        #error "WindowSurface::checkForResize unimplemented for this platform"
+    #endif
 
-	if((windowWidth != width) || (windowHeight != height))
-	{
-		bool success = reset(windowWidth, windowHeight);
+    if ((windowWidth != width) || (windowHeight != height)) {
+        bool success = reset(windowWidth, windowHeight);
+        if (getCurrentDrawSurface() == this) {
+            getCurrentContext()->makeCurrent(this);
+        }
 
-		if(getCurrentDrawSurface() == this)
-		{
-			getCurrentContext()->makeCurrent(this);
-		}
+        return success;
+    }
 
-		return success;
-	}
-
-	return true;   // Success
+    return true;   // Success
 }
 
 void WindowSurface::deleteResources()
 {
-	delete frameBuffer;
-	frameBuffer = nullptr;
+    delete frameBuffer;
+    frameBuffer = nullptr;
 
-	Surface::deleteResources();
+    Surface::deleteResources();
 }
 
 bool WindowSurface::reset(int backBufferWidth, int backBufferHeight)
 {
-	width = backBufferWidth;
-	height = backBufferHeight;
+    width = backBufferWidth;
+    height = backBufferHeight;
 
-	deleteResources();
+    deleteResources();
 
-	//if(window)
-	{
-		if(libGLESv2)
-		{
-			frameBuffer = libGLESv2->createFrameBuffer(display->getNativeDisplay(), window, width, height);
-		}
-		else if(libGLES_CM)
-		{
-			frameBuffer = libGLES_CM->createFrameBuffer(display->getNativeDisplay(), window, width, height);
-		}
+    //if(window)
+    {
+        if(libGLESv2)
+        {
+            frameBuffer = libGLESv2->createFrameBuffer(display->getNativeDisplay(), window, width, height);
+        }
+        else if(libGLES_CM)
+        {
+            frameBuffer = libGLES_CM->createFrameBuffer(display->getNativeDisplay(), window, width, height);
+        }
 
-		if(!frameBuffer)
-		{
-			ERR("Could not create frame buffer");
-			deleteResources();
-			return error(EGL_BAD_ALLOC, false);
-		}
-	}
+        if(!frameBuffer)
+        {
+            ERR("Could not create frame buffer");
+            deleteResources();
+            return error(EGL_BAD_ALLOC, false);
+        }
+    }
 
-	return Surface::initialize();
+    return Surface::initialize();
 }
 
 PBufferSurface::PBufferSurface(Display *display, const Config *config, EGLint width, EGLint height,
                                EGLenum textureFormat, EGLenum textureTarget, EGLenum clientBufferFormat,
                                EGLenum clientBufferType, EGLBoolean largestPBuffer, EGLClientBuffer clientBuffer,
                                EGLint clientBufferPlane)
-	: Surface(display, config)
+    : Surface(display, config)
 {
-	this->width = width;
-	this->height = height;
-	this->largestPBuffer = largestPBuffer;
-	this->textureFormat = textureFormat;
-	this->textureTarget = textureTarget;
-	this->clientBufferFormat = clientBufferFormat;
-	this->clientBufferType = clientBufferType;
-	this->clientBuffer = clientBuffer;
-	this->clientBufferPlane = clientBufferPlane;
+    this->width = width;
+    this->height = height;
+    this->largestPBuffer = largestPBuffer;
+    this->textureFormat = textureFormat;
+    this->textureTarget = textureTarget;
+    this->clientBufferFormat = clientBufferFormat;
+    this->clientBufferType = clientBufferType;
+    this->clientBuffer = clientBuffer;
+    this->clientBufferPlane = clientBufferPlane;
 }
 
 PBufferSurface::~PBufferSurface()
 {
-	PBufferSurface::deleteResources();
+    PBufferSurface::deleteResources();
 }
 
 void PBufferSurface::swap()
 {
-	// No effect
+    // No effect
 }
 
-bool PBufferSurface::updateBufferSettings(void *p0, void *p1, void *p2)
+bool PBufferSurface::updateBufferSettings(void *p0, void *p1, void *p2, int p3)
 {
     return 0;
 }
 
 EGLNativeWindowType PBufferSurface::getWindowHandle() const
 {
-	UNREACHABLE(-1);   // Should not be called. Only WindowSurface has a window handle.
+    UNREACHABLE(-1);   // Should not be called. Only WindowSurface has a window handle.
 
-	return 0;
+    return 0;
 }
 
 void PBufferSurface::deleteResources()
 {
-	Surface::deleteResources();
+    Surface::deleteResources();
 }
 
 }

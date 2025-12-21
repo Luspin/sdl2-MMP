@@ -57,7 +57,7 @@ public:
 	EGLBoolean (EGLAPIENTRY* eglWaitGL)(void);
 	EGLBoolean (EGLAPIENTRY* eglWaitNative)(EGLint engine);
 	EGLBoolean (EGLAPIENTRY* eglSwapBuffers)(EGLDisplay dpy, EGLSurface surface);
-    EGLBoolean (EGLAPIENTRY* eglUpdateBufferSettings)(EGLDisplay dpy, EGLSurface surface, void *p0, void *p1, void *p2);
+    EGLBoolean (EGLAPIENTRY* eglUpdateBufferSettings)(EGLDisplay dpy, EGLSurface surface, void *p0, void *p1, void *p2, int p3);
 	EGLBoolean (EGLAPIENTRY* eglCopyBuffers)(EGLDisplay dpy, EGLSurface surface, EGLNativePixmapType target);
 	EGLImageKHR (EGLAPIENTRY* eglCreateImageKHR)(EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list);
 	EGLBoolean (EGLAPIENTRY* eglDestroyImageKHR)(EGLDisplay dpy, EGLImageKHR image);

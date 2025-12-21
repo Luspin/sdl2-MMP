@@ -139,7 +139,7 @@ EGLAPI EGLBoolean EGLAPIENTRY eglQueryContext (EGLDisplay dpy, EGLContext ctx, E
 EGLAPI const char *EGLAPIENTRY eglQueryString (EGLDisplay dpy, EGLint name);
 EGLAPI EGLBoolean EGLAPIENTRY eglQuerySurface (EGLDisplay dpy, EGLSurface surface, EGLint attribute, EGLint *value);
 EGLAPI EGLBoolean EGLAPIENTRY eglSwapBuffers (EGLDisplay dpy, EGLSurface surface);
-EGLAPI EGLBoolean EGLAPIENTRY eglUpdateBufferSettings (EGLDisplay dpy, EGLSurface surface, void *p0, void *p1, void *p2);
+EGLAPI EGLBoolean EGLAPIENTRY eglUpdateBufferSettings (EGLDisplay dpy, EGLSurface surface, void *p0, void *p1, void *p2, int p3);
 EGLAPI EGLBoolean EGLAPIENTRY eglTerminate (EGLDisplay dpy);
 EGLAPI EGLBoolean EGLAPIENTRY eglWaitGL (void);
 EGLAPI EGLBoolean EGLAPIENTRY eglWaitNative (EGLint engine);
